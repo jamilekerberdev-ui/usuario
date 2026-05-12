@@ -6,8 +6,8 @@ import com.jamilekerber.usuario.infrastructure.entity.Usuario;
 import com.jamilekerber.usuario.infrastructure.exceptions.ConflictException;
 import com.jamilekerber.usuario.infrastructure.exceptions.ResourceNotFoundException;
 import com.jamilekerber.usuario.infrastructure.repository.UsuarioRepository;
+import com.jamilekerber.usuario.infrastructure.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +18,7 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioConverter usuarioConverter;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     public UsuarioDTO salvaUsuario(UsuarioDTO usuarioDTO) {
         emailExistente(usuarioDTO.getEmail());
@@ -36,13 +37,36 @@ public class UsuarioService {
             throw new ConflictException("Email já cadastrado." + e.getCause());
         }
     }
+
     public boolean verificaEmailExistente(String email) {
         return usuarioRepository.existsByEmail(email);
     }
-    public Usuario buscarUsuarioPorEmail(String email){
-        return usuarioRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Email não encontrado" + email));
+
+    public Usuario buscarUsuarioPorEmail(String email) {
+        return usuarioRepository.findByEmail(email).orElseThrow(() ->
+                new ResourceNotFoundException("Email não encontrado" + email));
     }
-    public void deletaUsuarioPorEmail(String email){
+
+    public void deletaUsuarioPorEmail(String email) {
         usuarioRepository.deleteByEmail(email);
     }
+
+    public UsuarioDTO atualizaDadosUsuario(String token, UsuarioDTO dto) {
+        //Aqui buscamos o email do usuario através do Token para tirar a obrigatoriedade de passar o email
+        String email = jwtUtil.extrairEmailToken(token.substring(7));
+
+        //Criptografia de senha
+        dto.setSenha(dto.getSenha() != null ? passwordEncoder.encode(dto.getSenha()) : null);
+
+        //Buscamos os dados no banco de dados
+        Usuario usuarioEntity = usuarioRepository.findByEmail(email).orElseThrow(() ->
+
+                new ResourceNotFoundException("Email não localizado"));
+        //Mesclamos os dados que recebemos na requisição DTO com os dados do banco de dados
+        Usuario usuario = usuarioConverter.updateUsuario(dto, usuarioEntity);
+
+        //Salvamos os dados convetidos e pagamos o retorno para converter em UsuarioDTO
+        return usuarioConverter.paraUsuarioDTO(usuarioRepository.save(usuario));
+    }
 }
+
