@@ -39,10 +39,10 @@ public class UsuarioService {
         try {
             boolean existe = verificaEmailExistente(email);
             if (existe) {
-                throw new ConflictException("Email já cadastrado." + email);
+                throw new ConflictException("Email já cadastrado " + email);
             }
         } catch (ConflictException e) {
-            throw new ConflictException("Email já cadastrado." + e.getCause());
+            throw new ConflictException("Email já cadastrado " + e.getCause());
         }
     }
 
@@ -53,7 +53,7 @@ public class UsuarioService {
     public UsuarioDTO buscarUsuarioPorEmail(String email) {
         try {
             return usuarioConverter.paraUsuarioDTO(usuarioRepository.findByEmail(email).orElseThrow(() ->
-                    new ResourceNotFoundException("Email não encontrado" + email)));
+                    new ResourceNotFoundException("Email não encontrado " + email)));
         }catch (ResourceNotFoundException e){
             throw new ResourceNotFoundException("Email não encontrado " + email);
         }
@@ -72,7 +72,7 @@ public class UsuarioService {
 
         //Buscamos os dados no banco de dados
         Usuario usuarioEntity = usuarioRepository.findByEmail(email).orElseThrow(() ->
-                new ResourceNotFoundException("Email não localizado"));
+                new ResourceNotFoundException("Email não localizado " + email));
 
         //Mesclamos os dados que recebemos na requisição DTO com os dados do banco de dados
         Usuario usuario = usuarioConverter.updateUsuario(dto, usuarioEntity);
