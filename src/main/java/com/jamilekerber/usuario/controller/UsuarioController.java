@@ -4,7 +4,6 @@ import com.jamilekerber.usuario.business.UsuarioService;
 import com.jamilekerber.usuario.business.dto.EnderecoDTO;
 import com.jamilekerber.usuario.business.dto.TelefoneDTO;
 import com.jamilekerber.usuario.business.dto.UsuarioDTO;
-import com.jamilekerber.usuario.infrastructure.entity.Usuario;
 import com.jamilekerber.usuario.infrastructure.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

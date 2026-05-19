@@ -50,7 +50,6 @@ public class UsuarioConverter {
 
 
 
-
     public UsuarioDTO paraUsuarioDTO(Usuario usuarioDTO){
         return UsuarioDTO.builder()
                 .nome(usuarioDTO.getNome())
